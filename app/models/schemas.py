@@ -39,8 +39,16 @@ class SizeNorm(BaseModel):
     height: float
     area: float
 
+class ObjectRelation(BaseModel):
+    subject_id: str
+    predicate: str
+    object_id: str
+    score: float
+
+
 
 class DetectedObject(BaseModel):
+    object_id: str
     class_name: str
     confidence: float
     bbox_px: BBoxPx
@@ -59,6 +67,7 @@ class RoomSignature(BaseModel):
     image: ImageInfo
     embedding: EmbeddingInfo
     objects: List[DetectedObject] = Field(default_factory=list)
+    relations: List[ObjectRelation] = Field(default_factory=list)
     debug: DebugInfo
 
 
