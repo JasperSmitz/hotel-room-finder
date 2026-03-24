@@ -5,6 +5,7 @@ from math import sqrt
 from typing import List, Dict, Tuple
 
 from app.models.schemas import RoomSignature, DetectedObject
+from app.core.visual_similarity import structural_similarity_from_paths
 
 
 def cosine_similarity(vec_a: List[float], vec_b: List[float]) -> float:
@@ -52,12 +53,13 @@ def object_pair_score(a: DetectedObject, b: DetectedObject) -> float:
     emb_sim = cosine_similarity(a.embedding.vector, b.embedding.vector)
     pos_sim = position_similarity(a, b)
     size_sim = size_similarity(a, b)
+    vis_sim = direct_visual_similarity(a, b)
 
-    # rough initial blend
     return (
-        0.60 * emb_sim +
-        0.25 * pos_sim +
-        0.15 * size_sim
+        0.40 * emb_sim +
+        0.30 * vis_sim +
+        0.20 * pos_sim +
+        0.10 * size_sim
     )
 
 
@@ -102,6 +104,7 @@ def greedy_match_same_class(
         emb_sim = cosine_similarity(obj_a.embedding.vector, obj_b.embedding.vector)
         pos_sim = position_similarity(obj_a, obj_b)
         siz_sim = size_similarity(obj_a, obj_b)
+        vis_sim = direct_visual_similarity(obj_a, obj_b)
 
         matches.append(
             {
@@ -109,6 +112,7 @@ def greedy_match_same_class(
                 "object_a": obj_a.object_id,
                 "object_b": obj_b.object_id,
                 "embedding_similarity": emb_sim,
+                "visual_similarity": vis_sim,
                 "position_similarity": pos_sim,
                 "size_similarity": siz_sim,
                 "score": best_score,
@@ -242,3 +246,8 @@ def build_summary(global_sim: float, object_score: float, relation_score: float,
         f"Relations={relation_score:.3f}, "
         f"Final={final_score:.3f}."
     )
+
+def direct_visual_similarity(a: DetectedObject, b: DetectedObject) -> float:
+    if not a.crop_path or not b.crop_path:
+        return 0.0
+    return structural_similarity_from_paths(a.crop_path, b.crop_path)
