@@ -16,8 +16,8 @@ def load_signature(path: str) -> RoomSignature:
 
 
 if __name__ == "__main__":
-    sig_a = load_signature("data/output/result_apeldoorn1.json")
-    sig_b = load_signature("data/output/result_apeldoorn2.json")
+    sig_a = load_signature("data/output/result_haarlem1.json")
+    sig_b = load_signature("data/output/result_haarlem2.json")
 
     result = compare_signatures(sig_a, sig_b)
     print(json.dumps(result, indent=2))

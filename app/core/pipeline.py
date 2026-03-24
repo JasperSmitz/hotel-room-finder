@@ -66,13 +66,7 @@ class SignaturePipeline:
                 x1, y1, x2, y2, width, height, settings.crop_margin
             )
             crop = crop_image(image, ex1, ey1, ex2, ey2)
-            crop_path = None
-            if settings.save_object_crops:
-                filename = os.path.basename(image_path)
-                stem, _ = os.path.splitext(filename)
-                crop_filename = f"{stem}_{object_id}.jpg"
-                crop_path = os.path.join(settings.crop_output_dir, crop_filename)
-                save_crop(crop, crop_path)
+
             crop_vector = self.embedder.embed_image(crop)
 
             bbox_norm = normalize_bbox(x1, y1, x2, y2, width, height)
@@ -83,6 +77,14 @@ class SignaturePipeline:
             object_index = class_counts[class_name]
             object_id = f"{class_name}_{object_index}"
             class_counts[class_name] += 1
+
+            crop_path = None
+            if settings.save_object_crops:
+                filename = os.path.basename(image_path)
+                stem, _ = os.path.splitext(filename)
+                crop_filename = f"{stem}_{object_id}.jpg"
+                crop_path = os.path.join(settings.crop_output_dir, crop_filename)
+                save_crop(crop, crop_path)
 
             objects.append(
                 DetectedObject(
