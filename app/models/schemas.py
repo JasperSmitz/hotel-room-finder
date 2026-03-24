@@ -56,6 +56,7 @@ class DetectedObject(BaseModel):
     center_norm: PointNorm
     size_norm: SizeNorm
     crop_margin: float
+    crop_path: Optional[str] = None
     embedding: EmbeddingInfo
 
 

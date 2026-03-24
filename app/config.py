@@ -30,5 +30,7 @@ class Settings(BaseModel):
     dedupe_iou_threshold: float = 0.80
     dedupe_center_distance_threshold: float = 0.08 
 
+    crop_output_dir: str = "debug/crops"
+    save_object_crops: bool = True
 
 settings = Settings()
