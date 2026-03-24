@@ -18,6 +18,7 @@ from app.models.schemas import (
 )
 from app.core.detector import ObjectDetector
 from app.core.embedder import ImageEmbedder
+from app.core.crop_store import save_crop
 
 
 class SignaturePipeline:
@@ -65,6 +66,13 @@ class SignaturePipeline:
                 x1, y1, x2, y2, width, height, settings.crop_margin
             )
             crop = crop_image(image, ex1, ey1, ex2, ey2)
+            crop_path = None
+            if settings.save_object_crops:
+                filename = os.path.basename(image_path)
+                stem, _ = os.path.splitext(filename)
+                crop_filename = f"{stem}_{object_id}.jpg"
+                crop_path = os.path.join(settings.crop_output_dir, crop_filename)
+                save_crop(crop, crop_path)
             crop_vector = self.embedder.embed_image(crop)
 
             bbox_norm = normalize_bbox(x1, y1, x2, y2, width, height)
@@ -86,6 +94,7 @@ class SignaturePipeline:
                     center_norm=center_norm,
                     size_norm=size_norm,
                     crop_margin=settings.crop_margin,
+                    crop_path=crop_path,
                     embedding=EmbeddingInfo(
                         model="open_clip",
                         model_name=settings.embedder_model_name,
